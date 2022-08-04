@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: form-modeler
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: form-modeler
+  template:
+    metadata:
+      labels:
+        name: form-modeler
+    spec:
+      containers:
+      - image: tsdevopsteam/platform:form-modeler-$BUILD_NUMBER
+        name: form-modeler
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: ts-platform
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: form-modeler
+  namespace: dev
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    name: form-modeler

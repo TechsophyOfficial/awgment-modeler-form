@@ -1,0 +1,12 @@
+{
+    "form": "Form",
+    "Id": "Id",
+    "name": "Name",
+    "version": "Version",
+    "deploymentName": "Deployment Name",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "deploy": "Deploy",
+    "delete": "Delete"
+}

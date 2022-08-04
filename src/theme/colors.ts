@@ -1,0 +1,11 @@
+export const WHITE = 'white';
+export const BLACK = 'black';
+export const RED = 'red';
+export const BACKGROUND_COLOR = '#e4e4f0';
+export const BACKGROUND_COLOR_2 = '#F8F9FA';
+export const TEXT_COLOR_1 = '#1F232E';
+export const TEXT_COLOR_LIGHT = '#B4B8C1';
+export const TAB_COLOR = '#eeeef5';
+export const TAB_HOVER_COLOR = '#f4f5f6';
+export const TAB_LABEL_COLOR = '#45474a';
+export const TAB_ADD_BUTTON_HOVER_COLOR = '#ffffff26';
