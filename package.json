@@ -41,6 +41,7 @@
     },
     "scripts": {
         "start": "craco start",
+        "build": "craco build",
         "build:development": "env-cmd -f .env.development craco build",
         "build:qa": "env-cmd -f .env.qa craco build",
         "build:production": "env-cmd -f .env.production craco build",
