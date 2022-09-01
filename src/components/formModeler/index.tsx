@@ -36,6 +36,8 @@ import {
     ImportForm,
     PropertiesSchema,
 } from './FormTypes';
+
+import AppConfig from '../../appConfig.js';
 import ImageIcon from '@mui/icons-material/Image';
 
 interface FormModelerProps {
@@ -94,12 +96,13 @@ const useStyles = makeStyles((theme) => ({
 // console.log(storage, file, fileName, dir, evt, url, options, fileKey);
 
 class FileService {
-    async uploadFile(storage, file, fileName, dir, evt, url, options, fileKey) {
+    async uploadFile(storage, file, fileName, dir, evt, url, options, fileKey, apiGatewayUrl) {
         return new Promise(async (resolve, reject) => {
             console.log(storage, file, fileName, dir, evt, url, options, fileKey);
+            console.log('111111', apiGatewayUrl);
 
-            const res = await uploadDocument(url, { file, documentPath: dir, name: file.name });
-
+            const res = await uploadDocument(url, { file, documentPath: dir, name: file.name }, apiGatewayUrl);
+            // const res = await uploadDocument(url, { file, documentPath: dir, name: file.name });
             if (res.success) {
                 // this.loadImage({ name: file.name, url: '', data: res.data, file });
                 return resolve({
@@ -110,21 +113,22 @@ class FileService {
                     type: file.type,
                     file: file,
                     data: res.data,
+                    // apiGatewayUrl: apiGatewayUrl,
                 });
             } else {
                 reject('Falied to upload');
             }
         });
     }
-    async deleteFile(fileInfo) {
+    async deleteFile(fileInfo, apiGatewayUrl) {
         console.log(fileInfo);
-        deleteDocument(fileInfo.data.id);
+        deleteDocument(fileInfo.data.id, apiGatewayUrl);
 
         //do something
     }
-    async downloadFile(fileInfo, options) {
+    async downloadFile(fileInfo, options, apiGatewayUrl) {
         console.log(fileInfo);
-        const response = await downloadDocument(fileInfo.data.id);
+        const response = await downloadDocument(fileInfo.data.id, apiGatewayUrl);
 
         // console.log(response.data);
         if (fileInfo.type.includes('image')) {
@@ -207,8 +211,11 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         tab.hasOwnProperty('properties') ? tab.properties : null,
     );
 
-    const fetchDocuments = async (): Promise<{ label: string; value: string }[] | null> => {
-        const { success, data } = await getDocumentTypes();
+    const appData: any = useContext(AppConfig);
+    const apiGatewayUrl = appData.apiGatewayUrl; //can be used as state if data not loaded properly
+
+    const fetchDocuments = async (apiGatewayUrl): Promise<{ label: string; value: string }[] | null> => {
+        const { success, data } = await getDocumentTypes(apiGatewayUrl);
         if (success && data) {
             return data?.map((doc: DocType) => ({
                 label: doc.name,
@@ -221,84 +228,86 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
     useEffect(() => {}, []);
 
     // useEffect(() => {
-    //     fetchDocuments().then((docs) => {
-    //         if (docs) {
-    //             const docTypeObj = {
-    //                 type: 'select',
-    //                 label: 'Document Type',
-    //                 data: {
-    //                     values: docs,
-    //                 },
-    //                 tooltip: 'Select type of document from the list',
-    //                 validate: {
-    //                     required: true,
-    //                 },
-    //                 key: 'documentType',
-    //                 input: true,
-    //                 defaultValue: docs.length ? docs[0].value : '',
-    //             };
+    //     if (apiGatewayUrl) {
+    //         fetchDocuments(apiGatewayUrl).then((docs) => {
+    //             if (docs) {
+    //                 const docTypeObj = {
+    //                     type: 'select',
+    //                     label: 'Document Type',
+    //                     data: {
+    //                         values: docs,
+    //                     },
+    //                     tooltip: 'Select type of document from the list',
+    //                     validate: {
+    //                         required: true,
+    //                     },
+    //                     key: 'documentType',
+    //                     input: true,
+    //                     defaultValue: docs.length ? docs[0].value : '',
+    //                 };
 
-    //             const docTypeArr = FileEdit.filter((item: FileEditItems) => {
-    //                 return item.key === 'documentType';
-    //             });
+    //                 const docTypeArr = FileEdit.filter((item: FileEditItems) => {
+    //                     return item.key === 'documentType';
+    //                 });
 
-    //             if (docTypeArr.length === 0) {
-    //                 FileEdit.splice(1, 0, docTypeObj);
-    //             }
-
-    //             for (const [index, value] of FileEdit.entries()) {
-    //                 if (value.key === 'storage') {
-    //                     FileEdit[index] = {
-    //                         type: 'select',
-    //                         input: true,
-    //                         key: 'storage',
-    //                         defaultValue: 'url',
-    //                         label: 'Storage',
-    //                         placeholder: 'Select your file storage provider',
-    //                         tooltip: 'Which storage to save the files in',
-    //                         validate: {
-    //                             required: true,
-    //                         },
-    //                         data: {
-    //                             values: [
-    //                                 {
-    //                                     label: 'URL',
-    //                                     value: 'url',
-    //                                 },
-    //                             ],
-    //                         },
-    //                     };
+    //                 if (docTypeArr.length === 0) {
+    //                     FileEdit.splice(1, 0, docTypeObj);
     //                 }
-    //                 if (value.key === 'url') {
-    //                     FileEdit[index] = {
-    //                         type: 'textfield',
-    //                         input: true,
-    //                         key: 'documentPath',
-    //                         label: 'Document Path',
-    //                         weight: 10,
-    //                         placeholder: 'Enter document path',
-    //                         tooltip: 'If given file will be saved to this path',
-    //                         conditional: {
-    //                             json: {
-    //                                 '===': [
+
+    //                 for (const [index, value] of FileEdit.entries()) {
+    //                     if (value.key === 'storage') {
+    //                         FileEdit[index] = {
+    //                             type: 'select',
+    //                             input: true,
+    //                             key: 'storage',
+    //                             defaultValue: 'url',
+    //                             label: 'Storage',
+    //                             placeholder: 'Select your file storage provider',
+    //                             tooltip: 'Which storage to save the files in',
+    //                             validate: {
+    //                                 required: true,
+    //                             },
+    //                             data: {
+    //                                 values: [
     //                                     {
-    //                                         var: 'data.storage',
+    //                                         label: 'URL',
+    //                                         value: 'url',
     //                                     },
-    //                                     'url',
     //                                 ],
     //                             },
-    //                         },
-    //                     };
-    //                 }
+    //                         };
+    //                     }
+    //                     if (value.key === 'url') {
+    //                         FileEdit[index] = {
+    //                             type: 'textfield',
+    //                             input: true,
+    //                             key: 'documentPath',
+    //                             label: 'Document Path',
+    //                             weight: 10,
+    //                             placeholder: 'Enter document path',
+    //                             tooltip: 'If given file will be saved to this path',
+    //                             conditional: {
+    //                                 json: {
+    //                                     '===': [
+    //                                         {
+    //                                             var: 'data.storage',
+    //                                         },
+    //                                         'url',
+    //                                     ],
+    //                                 },
+    //                             },
+    //                         };
+    //                     }
 
-    //                 if (value.key === 'documentType') {
-    //                     FileEdit[index] = docTypeObj;
-    //                     console.log(docTypeObj);
+    //                     if (value.key === 'documentType') {
+    //                         FileEdit[index] = docTypeObj;
+    //                         console.log(docTypeObj);
+    //                     }
     //                 }
     //             }
-    //         }
-    //     });
-    // }, []);
+    //         });
+    //     }
+    // }, [apiGatewayUrl]);
 
     useEffect(() => {
         const isButtonActionAvailable = (action: string) => {
@@ -819,7 +828,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         }
 
         openSpinner();
-        const { success, data, message } = await saveFormOrComponent('form', saveData);
+        const { success, data, message } = await saveFormOrComponent('form', saveData, apiGatewayUrl);
         setImportedForm(null);
         if (success && data) {
             const { id: newId, version } = data;
@@ -868,7 +877,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                 };
             }
             openSpinner();
-            const { success } = await deployFormOrComponent('form', postData);
+            const { success } = await deployFormOrComponent('form', postData, apiGatewayUrl);
             closeSpinner();
             setOpenFormModal(false);
             if (success) {
@@ -896,7 +905,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
     const onDeleteForm = async (): Promise<void> => {
         if (tab.id) {
             openSpinner();
-            const { success = false, message } = await deleteFormOrComponent(tab.id);
+            const { success = false, message } = await deleteFormOrComponent(tab.id, apiGatewayUrl);
             if (success) {
                 showConfirmation({
                     ...confirmation,

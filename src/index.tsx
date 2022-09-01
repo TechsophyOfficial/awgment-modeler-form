@@ -8,8 +8,12 @@ import KeycloakWrapper from './KeycloakWrapper';
 declare const window: any;
 
 window.renderFormMFE = (containerId: any, history) => {
-    ReactDOM.render(<App history={history} />, document.getElementById(containerId));
-    serviceWorker.unregister();
+    fetch('../config.json')
+        .then((r) => r.json())
+        .then((config) => {
+            ReactDOM.render(<App config={config} history={history} />, document.getElementById(containerId));
+            serviceWorker.unregister();
+        });
 };
 
 window.unmountFormMFE = (containerId) => {
@@ -17,12 +21,17 @@ window.unmountFormMFE = (containerId) => {
 };
 
 if (!document.getElementById('FormMFE-container')) {
-    ReactDOM.render(
-        <React.StrictMode>
-            <KeycloakWrapper />
-        </React.StrictMode>,
+    fetch('../config.json')
+        .then((r) => r.json())
+        .then((config) => {
+            // console.log(config);
+            ReactDOM.render(
+                <React.StrictMode>
+                    <KeycloakWrapper config={config} />
+                </React.StrictMode>,
 
-        document.getElementById('root'),
-    );
-    serviceWorker.unregister();
+                document.getElementById('root'),
+            );
+            serviceWorker.unregister();
+        });
 }
