@@ -9,9 +9,9 @@ const defaultHistory = createBrowserHistory();
 
 const KeycloakWrapper = ({ config, history = defaultHistory }) => {
     const keycloak = new Keycloak({
-        realm: config.keycloakRealm,
-        url: `${config.keycloakUrl}auth/`,
-        clientId: config.keycloakClientId,
+        realm: config.keyCloakRealm,
+        url: `${config.keyCloakUrl}auth/`,
+        clientId: config.keyCloakClientId,
     });
 
     const setTokens = () => {
