@@ -3,5 +3,6 @@
     "keycloakUrl": "https://keycloak-tsplatform.techsophy.com/",
     "keycloakRealm": "techsophy-platform",
     "keycloakClientId": "tp-ui-core",
-    "mfeContainerBaseName": "/form-modeler"
+    "mfeContainerBaseName": "/form-modeler",
+    "publicUrl": "/model/forms/"
 }
