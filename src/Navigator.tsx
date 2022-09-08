@@ -19,7 +19,7 @@ const PrivateRoute = ({ component: Component, ...restProps }): React.ReactElemen
 };
 const getBase = (currentLocation: string, config: any) => {
     // const container = `${process.env.REACT_APP_MFE_CONTAINER_BASENAME}`;
-    const container = config.mfeContainerBaseName;
+    const container = config.mfeFormContainerBaseName;
     if (container) {
         const url = currentLocation.includes(container) ? container : config.publicFormsUrl;
         return url;
