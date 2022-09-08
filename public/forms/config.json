@@ -4,5 +4,5 @@
     "keyCloakRealm": "techsophy-platform",
     "keyCloakClientId": "tp-ui-core",
     "mfeContainerBaseName": "/form-modeler",
-    "publicUrl": "/model/forms/"
+    "publicFormsUrl": "/model/forms/"
 }

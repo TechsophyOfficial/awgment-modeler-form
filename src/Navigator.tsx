@@ -21,10 +21,10 @@ const getBase = (currentLocation: string, config: any) => {
     // const container = `${process.env.REACT_APP_MFE_CONTAINER_BASENAME}`;
     const container = config.mfeContainerBaseName;
     if (container) {
-        const url = currentLocation.includes(container) ? container : config.publicUrl;
+        const url = currentLocation.includes(container) ? container : config.publicFormsUrl;
         return url;
     }
-    return config.publicUrl;
+    return config.publicFormsUrl;
 };
 
 const Navigator = ({ config, history }): React.ReactElement => {
