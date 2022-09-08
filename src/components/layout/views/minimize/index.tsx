@@ -13,6 +13,8 @@ import getNewFormioForm from 'constants/newFoimioForm';
 import EmptyCardLayout from 'tsf_empty_card/dist/components/emptyCardLayout';
 import { FormioSchema } from 'components/formModeler/FormTypes';
 
+import AppConfig from '../../../../appConfig.js';
+
 const MinimizeView = () => {
     const {
         layout: { isHidden, isMinimized },
@@ -69,13 +71,21 @@ const MinimizeView = () => {
     const { pushNotification } = useContext(NotificationContext);
     const { formName, newFormioForm } = getNewFormioForm();
 
+    const appData: any = useContext(AppConfig);
+    const [apiGatewayUrl, setApiGatewayUrl] = useState(appData.apiGatewayUrl);
+
     const fetchAllForms = useCallback(async () => {
         openSpinner();
         const {
             success,
             data,
             message = '',
-        } = await getAllFormsOrComponents({ type: 'form', paginate: false, sortBy: 'updatedOn' });
+        } = await getAllFormsOrComponents({
+            type: 'form',
+            paginate: false,
+            sortBy: 'updatedOn',
+            apiGatewayUrl: apiGatewayUrl,
+        });
         closeSpinner();
         if (success && data) {
             updateFormTableData(data);
@@ -95,7 +105,7 @@ const MinimizeView = () => {
 
     const fetchFormDetails = async (id: string): Promise<void> => {
         openSpinner();
-        const { success, message, data } = await getFormOrComponentDetails(id);
+        const { success, message, data } = await getFormOrComponentDetails({ id: id, apiGatewayUrl: apiGatewayUrl });
         if (success && data) {
             const { name, version, properties } = data;
             const components: FormioSchema = data.components as FormioSchema;
@@ -124,6 +134,7 @@ const MinimizeView = () => {
             paginate: false,
             sortBy: 'updatedOn',
             searchTerm: searchTerm,
+            apiGatewayUrl: apiGatewayUrl,
         });
         if (success && data) {
             updateFormTableData(data);
