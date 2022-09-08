@@ -27,10 +27,11 @@ interface ThemeData {
     content: ThemeProps;
 }
 
-export const PREFERENCE_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${PREFERENCE_ENDPOINT}`;
-export const THEME_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${THEME_ENDPOINT}`;
+// export const PREFERENCE_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${PREFERENCE_ENDPOINT}`;
+// export const THEME_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${THEME_ENDPOINT}`;
 
-const getPreferenceThemeId = async (): Promise<Id | null> => {
+const getPreferenceThemeId = async (apiGatewayUrl): Promise<Id | null> => {
+    const PREFERENCE_API_ENDPOINT = `${apiGatewayUrl}${PREFERENCE_ENDPOINT}`;
     const res: ResponseProps = (await request.get(PREFERENCE_API_ENDPOINT)) as ResponseProps;
     if (res.data) {
         const preferenceData: PreferenceData = res.data as PreferenceData;
@@ -39,8 +40,9 @@ const getPreferenceThemeId = async (): Promise<Id | null> => {
     return null;
 };
 
-export const getSelectedTheme = async (): Promise<{ success: boolean; data?: ThemeProps }> => {
-    const themeId = await getPreferenceThemeId();
+export const getSelectedTheme = async (apiGatewayUrl): Promise<{ success: boolean; data?: ThemeProps }> => {
+    const themeId = await getPreferenceThemeId(apiGatewayUrl);
+    const THEME_API_ENDPOINT = `${apiGatewayUrl}${THEME_ENDPOINT}`;
     if (themeId) {
         const res: ResponseProps = (await request.get(`${THEME_API_ENDPOINT}/${themeId}`)) as ResponseProps;
         if (res.data) {
