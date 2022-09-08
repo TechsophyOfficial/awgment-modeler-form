@@ -1,8 +1,0 @@
-{
-    "apiGatewayUrl": "https://api-gateway.techsophy.com/api",
-    "keyCloakUrl": "https://keycloak-tsplatform.techsophy.com/",
-    "keyCloakRealm": "techsophy-platform",
-    "keyCloakClientId": "tp-ui-core",
-    "mfeContainerBaseName": "/form-modeler",
-    "publicFormsUrl": "/model/forms/"
-}

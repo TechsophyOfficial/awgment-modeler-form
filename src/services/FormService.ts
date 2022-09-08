@@ -34,20 +34,16 @@ interface FormReqProps {
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
     searchTerm?: string;
-    apiGatewayUrl?: string;
 }
 
-// export const FORM_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${FORM_ENDPOINT}`;
-// export const RUNTIME_FORM_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${RUNTIME_FORM_ENDPOINT}`;
-// export const DMS_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${DMS_ENDPOINT}`;
+export const FORM_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${FORM_ENDPOINT}`;
+export const RUNTIME_FORM_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${RUNTIME_FORM_ENDPOINT}`;
+export const DMS_API_ENDPOINT = `${process.env.REACT_APP_API_GATEWAY_URL}${DMS_ENDPOINT}`;
 
-export const getDocumentTypes = async (
-    apiGatewayUrl,
-): Promise<{
+export const getDocumentTypes = async (): Promise<{
     success: boolean;
     data?: DocType[];
 }> => {
-    const DMS_API_ENDPOINT = `${apiGatewayUrl}${DMS_ENDPOINT}`;
     const r: ResponseProps = (await request.get(DMS_API_ENDPOINT)) as ResponseProps;
     if (r.success) {
         return { success: r.success, data: r.data as DocType[] };
@@ -63,9 +59,7 @@ export const getAllFormsOrComponents = async ({
     sortBy = '',
     sortDirection = 'desc',
     searchTerm = '',
-    apiGatewayUrl,
 }: FormReqProps): Promise<{ success: boolean; message?: string; data?: FormTableProps | any }> => {
-    const FORM_API_ENDPOINT = `${apiGatewayUrl}${FORM_ENDPOINT}`;
     const sort = sortBy && sortDirection ? `&sort-by=${sortBy}:${sortDirection}` : '';
     const search = searchTerm ? `&q=${searchTerm}` : '';
     let URL = `${FORM_API_ENDPOINT}?include-content=true&type=${type}`;
@@ -90,11 +84,9 @@ export const getAllFormsOrComponents = async ({
 
 //API call to get forms and components
 
-export const getFormOrComponentDetails = async ({
-    apiGatewayUrl,
-    id,
-}): Promise<{ success: boolean; data?: FormProps | ComponentFormResponse; message?: string }> => {
-    const FORM_API_ENDPOINT = `${apiGatewayUrl}${FORM_ENDPOINT}`;
+export const getFormOrComponentDetails = async (
+    id: string,
+): Promise<{ success: boolean; data?: FormProps | ComponentFormResponse; message?: string }> => {
     const r: ResponseProps = (await request.get(`${FORM_API_ENDPOINT}/${id}`)) as ResponseProps;
 
     if (r && r.success) {
@@ -105,11 +97,9 @@ export const getFormOrComponentDetails = async ({
     return { success: false };
 };
 
-export const fetchRuntimeFormDetails = async ({
-    id,
-    apiGatewayUrl,
-}): Promise<{ success: boolean; data?: FormProps | ComponentFormResponse; message?: string }> => {
-    const RUNTIME_FORM_API_ENDPOINT = `${apiGatewayUrl}${RUNTIME_FORM_ENDPOINT}`;
+export const fetchRuntimeFormDetails = async (
+    id: string,
+): Promise<{ success: boolean; data?: FormProps | ComponentFormResponse; message?: string }> => {
     const r: ResponseProps = (await request.get(`${RUNTIME_FORM_API_ENDPOINT}/${id}`)) as ResponseProps;
 
     if (r.success) {
@@ -123,9 +113,7 @@ export const fetchRuntimeFormDetails = async ({
 export const saveFormOrComponent = async (
     type: 'form' | 'component',
     formDetails,
-    apiGatewayUrl,
 ): Promise<{ success: boolean; data?: SaveFormResponse; message?: string }> => {
-    const FORM_API_ENDPOINT = `${apiGatewayUrl}${FORM_ENDPOINT}`;
     const r: ResponseProps = (await request.post(FORM_API_ENDPOINT, { ...formDetails, type: type })) as ResponseProps;
 
     if (r.success) {
@@ -139,9 +127,7 @@ export const saveFormOrComponent = async (
 export const deployFormOrComponent = async (
     type: 'form' | 'component',
     formDetails: FormDeployProps | ComponentFormResponse,
-    apiGatewayUrl: string,
 ): Promise<{ success: boolean; message?: string }> => {
-    const RUNTIME_FORM_API_ENDPOINT = `${apiGatewayUrl}${RUNTIME_FORM_ENDPOINT}`;
     const { name, id, components, version, properties } = formDetails;
 
     const apiData = {
@@ -161,11 +147,7 @@ export const deployFormOrComponent = async (
     return { success: false };
 };
 
-export const deleteFormOrComponent = async (
-    id: string,
-    apiGatewayUrl: string,
-): Promise<{ success: boolean; message?: string }> => {
-    const FORM_API_ENDPOINT = `${apiGatewayUrl}${FORM_ENDPOINT}`;
+export const deleteFormOrComponent = async (id: string): Promise<{ success: boolean; message?: string }> => {
     const r: ResponseProps = (await request.delete(`${FORM_API_ENDPOINT}/${id}`)) as ResponseProps;
 
     if (r.success) {
@@ -175,8 +157,8 @@ export const deleteFormOrComponent = async (
     return { success: false };
 };
 
-export const uploadDocument = async (url, data, apiGatewayUrl) => {
-    const apiEndpoint = `${apiGatewayUrl}${url}`;
+export const uploadDocument = async (url, data) => {
+    const apiEndpoint = `${process.env.REACT_APP_API_GATEWAY_URL}${url}`;
     const r: ResponseProps = (await request.postForm(apiEndpoint, data)) as ResponseProps;
 
     if (r.success) {
@@ -186,8 +168,8 @@ export const uploadDocument = async (url, data, apiGatewayUrl) => {
     return { success: false };
 };
 
-export const deleteDocument = async (id, apiGatewayUrl) => {
-    const apiEndpoint = `${apiGatewayUrl}${DELETE_DOCUMENT}${id}`;
+export const deleteDocument = async (id) => {
+    const apiEndpoint = `${process.env.REACT_APP_API_GATEWAY_URL}${DELETE_DOCUMENT}${id}`;
     const r: ResponseProps = (await request.delete(apiEndpoint)) as ResponseProps;
 
     if (r.success) {
@@ -208,9 +190,9 @@ export const deleteDocument = async (id, apiGatewayUrl) => {
 //     return { success: false };
 // };
 
-export const downloadDocument = async (id: string, apiGatewayUrl: string) => {
+export const downloadDocument = async (id: string) => {
     const token = sessionStorage.getItem('react-token');
-    const apiEndpoint = `${apiGatewayUrl}${DOWNLOAD_DOCUMENT}${id}`;
+    const apiEndpoint = `${process.env.REACT_APP_API_GATEWAY_URL}${DOWNLOAD_DOCUMENT}${id}`;
 
     const response = await axios.get(apiEndpoint, {
         headers: {
