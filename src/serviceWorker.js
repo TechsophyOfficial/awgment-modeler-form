@@ -1,6 +1,5 @@
 // This optional code is used to register a service worker.
 // register() is not called by default.
-
 // This lets the app load faster on subsequent visits in production, and gives
 // it offline capabilities. However, it also means that developers (and users)
 // will only see deployed updates on subsequent visits to a page, after all the
@@ -9,8 +8,6 @@
 
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
-import React from 'react';
-import AppConfig from './appConfig.js';
 
 const isLocalhost = Boolean(
     window.location.hostname === 'localhost' ||
@@ -20,10 +17,10 @@ const isLocalhost = Boolean(
         window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/),
 );
 
-export function register(config, publicUrls, nodeEnv) {
-    if (nodeEnv === 'production' && 'serviceWorker' in navigator) {
+export function register(config) {
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
         // The URL constructor is available in all browsers that support SW.
-        const publicUrl = new URL(publicUrls, window.location.href);
+        const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
         if (publicUrl.origin !== window.location.origin) {
             // Our service worker won't work if PUBLIC_URL is on a different origin
             // from what our page is served on. This might happen if a CDN is used to
@@ -32,16 +29,11 @@ export function register(config, publicUrls, nodeEnv) {
         }
 
         window.addEventListener('load', () => {
-            const appData = React.useContext(AppConfig);
-            const [publicUrls, setPublicUrls] = React.useState(appData.publicUrl);
-            const [nodeEnv, setNodeEnv] = React.useState(appData.nodeEnv);
-
-            // const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
-            const swUrl = `${publicUrls}/service-worker.js`;
+            const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
             if (isLocalhost) {
                 // This is running on localhost. Let's check if a service worker still exists or not.
-                checkValidServiceWorker(swUrl, config), publicUrls, nodeEnv;
+                checkValidServiceWorker(swUrl, config);
 
                 // Add some additional logging to localhost, pointing developers to the
                 // service worker/PWA documentation.
@@ -53,15 +45,15 @@ export function register(config, publicUrls, nodeEnv) {
                 });
             } else {
                 // Is not localhost. Just register service worker
-                registerValidSW(swUrl, config, publicUrls, nodeEnv);
+                registerValidSW(swUrl, config);
             }
         });
     }
 }
 
-function registerValidSW(swUrl, config, publicUrls, nodeEnv) {
+function registerValidSW(swUrl, config) {
     navigator.serviceWorker
-        .register(swUrl, publicUrls, nodeEnv)
+        .register(swUrl)
         .then((registration) => {
             registration.onupdatefound = () => {
                 const installingWorker = registration.installing;
@@ -78,7 +70,6 @@ function registerValidSW(swUrl, config, publicUrls, nodeEnv) {
                                 'New content is available and will be used when all ' +
                                     'tabs for this page are closed. See https://bit.ly/CRA-PWA.',
                             );
-
                             // Execute callback
                             if (config && config.onUpdate) {
                                 config.onUpdate(registration);
@@ -88,7 +79,6 @@ function registerValidSW(swUrl, config, publicUrls, nodeEnv) {
                             // It's the perfect time to display a
                             // "Content is cached for offline use." message.
                             console.log('Content is cached for offline use.');
-
                             // Execute callback
                             if (config && config.onSuccess) {
                                 config.onSuccess(registration);
@@ -103,7 +93,7 @@ function registerValidSW(swUrl, config, publicUrls, nodeEnv) {
         });
 }
 
-function checkValidServiceWorker(swUrl, config, publicUrls, nodeEnv) {
+function checkValidServiceWorker(swUrl, config) {
     // Check if the service worker can be found. If it can't reload the page.
     fetch(swUrl, {
         headers: { 'Service-Worker': 'script' },
@@ -120,14 +110,13 @@ function checkValidServiceWorker(swUrl, config, publicUrls, nodeEnv) {
                 });
             } else {
                 // Service worker found. Proceed as normal.
-                registerValidSW(swUrl, config, publicUrls, nodeEnv);
+                registerValidSW(swUrl, config);
             }
         })
         .catch(() => {
             console.log('No internet connection found. App is running in offline mode.');
         });
 }
-
 export function unregister() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready
