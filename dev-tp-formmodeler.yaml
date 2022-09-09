@@ -19,7 +19,7 @@ spec:
         name: form-modeler
          envFrom:
         - configMapRef:
-            name: formui-env
+            name: formmodeler-env
         ports:
         - containerPort: 80
       imagePullSecrets:
