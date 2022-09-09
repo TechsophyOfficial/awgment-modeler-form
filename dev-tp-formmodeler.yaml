@@ -17,7 +17,7 @@ spec:
       containers:
       - image: tsdevopsteam/platform:form-modeler-$BUILD_NUMBER
         name: form-modeler
-         envFrom:
+        envFrom:
         - configMapRef:
             name: formmodeler-env
         ports:
