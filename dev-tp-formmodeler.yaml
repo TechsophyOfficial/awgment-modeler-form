@@ -17,6 +17,9 @@ spec:
       containers:
       - image: tsdevopsteam/platform:form-modeler-$BUILD_NUMBER
         name: form-modeler
+         envFrom:
+        - configMapRef:
+            name: formui-env
         ports:
         - containerPort: 80
       imagePullSecrets:
