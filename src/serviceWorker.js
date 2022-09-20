@@ -1,6 +1,5 @@
 // This optional code is used to register a service worker.
 // register() is not called by default.
-
 // This lets the app load faster on subsequent visits in production, and gives
 // it offline capabilities. However, it also means that developers (and users)
 // will only see deployed updates on subsequent visits to a page, after all the
@@ -71,7 +70,6 @@ function registerValidSW(swUrl, config) {
                                 'New content is available and will be used when all ' +
                                     'tabs for this page are closed. See https://bit.ly/CRA-PWA.',
                             );
-
                             // Execute callback
                             if (config && config.onUpdate) {
                                 config.onUpdate(registration);
@@ -81,7 +79,6 @@ function registerValidSW(swUrl, config) {
                             // It's the perfect time to display a
                             // "Content is cached for offline use." message.
                             console.log('Content is cached for offline use.');
-
                             // Execute callback
                             if (config && config.onSuccess) {
                                 config.onSuccess(registration);
@@ -120,7 +117,6 @@ function checkValidServiceWorker(swUrl, config) {
             console.log('No internet connection found. App is running in offline mode.');
         });
 }
-
 export function unregister() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready
