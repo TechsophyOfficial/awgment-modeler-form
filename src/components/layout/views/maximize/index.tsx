@@ -15,7 +15,6 @@ import getNewFormioForm from 'constants/newFoimioForm';
 import { getFormOrComponentDetails, deleteFormOrComponent, getAllFormsOrComponents } from 'services/FormService';
 import { FormioSchema } from 'components/formModeler/FormTypes';
 import FormContext from 'contexts/formContext/form-context';
-import AppConfig from '../../../../appConfig.js';
 
 const actions = [
     {
@@ -44,9 +43,6 @@ const MaximizeView = () => {
     const { formTableData, updateFormTableData } = useContext(FormContext);
     const { formName, newFormioForm } = getNewFormioForm();
     const { rowsPerPage, sortBy, sortDirection, page } = formTableData;
-
-    const appData: any = useContext(AppConfig);
-    const [apiGatewayUrl, setApiGatewayUrl] = useState(appData.apiGatewayUrl);
 
     useEffect(() => {
         fetchAllForms(rowsPerPage, page);
@@ -80,7 +76,6 @@ const MaximizeView = () => {
             page: pageNo,
             sortBy: orderBy,
             sortDirection: orderDirection,
-            apiGatewayUrl: apiGatewayUrl,
         });
         closeSpinner();
         if (success && data) {
@@ -114,7 +109,7 @@ const MaximizeView = () => {
 
     const fetchFormDetails = async (id: string): Promise<void> => {
         openSpinner();
-        const { success, message, data } = await getFormOrComponentDetails({ id: id, apiGatewayUrl: apiGatewayUrl });
+        const { success, message, data } = await getFormOrComponentDetails(id);
         if (success && data) {
             const { name, version, properties } = data;
             const components: FormioSchema = data.components as FormioSchema;
@@ -140,7 +135,7 @@ const MaximizeView = () => {
 
     const deleteFormOrComponentItem = async (id: string) => {
         openSpinner();
-        const { success, message } = await deleteFormOrComponent(id, apiGatewayUrl);
+        const { success, message } = await deleteFormOrComponent(id);
         if (success) {
             showConfirmation({
                 ...confirmation,
@@ -200,7 +195,6 @@ const MaximizeView = () => {
             type: 'form',
             paginate: false,
             searchTerm: searchTerm,
-            apiGatewayUrl: apiGatewayUrl,
         });
         if (success && data) {
             const updateData = { records: data };

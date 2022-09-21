@@ -27,8 +27,6 @@ import SpinnerContext from 'contexts/spinnerContext/spinner-context';
 import NotificationContext from 'contexts/notificationContext/notification-context';
 import { PropertiesSchema } from 'components/formModeler/FormTypes';
 
-import AppConfig from '../../appConfig.js';
-
 const actions = [
     {
         actionId: ACTION_EDIT,
@@ -111,16 +109,12 @@ const Components = () => {
     const [isEditComponentModal, setIsEditComponentModal] = useState<boolean>(false);
     const [isDeployComponentModal, setIsDeployComponentModal] = useState<boolean>(false);
 
-    const appData: any = useContext(AppConfig);
-    const [apiGatewayUrl, setApiGatewayUrl] = useState(appData.apiGatewayUrl);
-
     useEffect(() => {
         fetchAllForms(rowsPerPage, page);
         // eslint-disable-next-line
     }, []);
     const fetchAllForms = async (noOfRows, pageNo, orderBy = sortBy, orderDirection = sortDirection): Promise<void> => {
         openSpinner();
-        // const apiGatewayUrl = gatewayUrl;
         const { success = false, data } = await getAllFormsOrComponents({
             type: 'component',
             paginate: true,
@@ -128,7 +122,6 @@ const Components = () => {
             page: pageNo,
             sortBy,
             sortDirection,
-            apiGatewayUrl: apiGatewayUrl,
         });
         closeSpinner();
         if (success && data) {
@@ -149,28 +142,19 @@ const Components = () => {
     };
 
     const fetchAddComponentForm = useCallback(async (): Promise<void> => {
-        const { success = false, data } = await fetchRuntimeFormDetails({
-            id: ADD_COMPONENT_FORM_ID,
-            apiGatewayUrl: apiGatewayUrl,
-        });
+        const { success = false, data } = await fetchRuntimeFormDetails(ADD_COMPONENT_FORM_ID);
         if (success && data) {
             setAddComponentForm(data.components);
         }
     }, []);
     const fetchEditComponentForm = useCallback(async (): Promise<void> => {
-        const { success = false, data } = await fetchRuntimeFormDetails({
-            id: EDIT_COMPONENT_FORM_ID,
-            apiGatewayUrl: apiGatewayUrl,
-        });
+        const { success = false, data } = await fetchRuntimeFormDetails(EDIT_COMPONENT_FORM_ID);
         if (success && data) {
             setEditComponentForm(data.components);
         }
     }, []);
     const fetchDeployComponentForm = useCallback(async (): Promise<void> => {
-        const { success = false, data } = await fetchRuntimeFormDetails({
-            id: DEPLOY_COMPONENT_FORM_ID,
-            apiGatewayUrl: apiGatewayUrl,
-        });
+        const { success = false, data } = await fetchRuntimeFormDetails(DEPLOY_COMPONENT_FORM_ID);
         if (success && data) {
             setDeployComponentForm(data.components);
         }
@@ -194,7 +178,7 @@ const Components = () => {
 
     const handleEditComponentAction = async (id): Promise<void> => {
         openSpinner();
-        const { success, data } = await getFormOrComponentDetails({ id: id, apiGatewayUrl: apiGatewayUrl });
+        const { success, data } = await getFormOrComponentDetails(id);
         closeSpinner();
         if (success && data) {
             const { name, version } = data;
@@ -213,7 +197,7 @@ const Components = () => {
     };
 
     const handleDeployComponentAction = async (id): Promise<void> => {
-        const { success, data } = await getFormOrComponentDetails({ id: id, apiGatewayUrl: apiGatewayUrl });
+        const { success, data } = await getFormOrComponentDetails(id);
         if (success && data) {
             setIsDeployComponentModal(true);
             const componentData: ComponentFormResponse = data as ComponentFormResponse;
@@ -224,7 +208,6 @@ const Components = () => {
     };
 
     const handleSearch = async (searchTerm: string): Promise<void> => {
-        // const apiGatewayUrl = gatewayUrl;
         const { success, data } = await getAllFormsOrComponents({
             type: 'component',
             paginate: true,
@@ -233,7 +216,6 @@ const Components = () => {
             sortBy,
             sortDirection,
             searchTerm,
-            apiGatewayUrl: apiGatewayUrl,
         });
         if (success && data) {
             const { totalElements, size, page: currentPage, content } = data;
@@ -251,7 +233,7 @@ const Components = () => {
     const handleDeploy = async (): Promise<void> => {
         if (deployComponentData) {
             openSpinner();
-            const { success } = await deployFormOrComponent('component', deployComponentData, apiGatewayUrl);
+            const { success } = await deployFormOrComponent('component', deployComponentData);
             closeSpinner();
             if (success) {
                 closePopup();
@@ -272,7 +254,7 @@ const Components = () => {
 
     const handleSaveComponent = async (saveData: ComponentForm): Promise<void> => {
         openSpinner();
-        const { success, data, message } = await saveFormOrComponent('component', saveData, apiGatewayUrl);
+        const { success, data, message } = await saveFormOrComponent('component', saveData);
         closeSpinner();
         if (success && data) {
             closePopup();
@@ -304,7 +286,7 @@ const Components = () => {
 
     const onDelete = async (id: string): Promise<void> => {
         openSpinner();
-        const { success = false, message } = await deleteFormOrComponent(id, apiGatewayUrl);
+        const { success = false, message } = await deleteFormOrComponent(id);
         closeSpinner();
         if (success) {
             closePopup();
