@@ -21,14 +21,14 @@ const getBase = (currentLocation: string, config: any) => {
     // const container = `${process.env.REACT_APP_MFE_CONTAINER_BASENAME}`;
     const container = config.mfeFormContainerBaseName;
     if (container) {
-        const url = currentLocation.includes(container) ? container : process.env.PUBLIC_URL;
+        const url = currentLocation.includes(container) ? container : config.publicFormsUrl;
         return url;
     }
-    return process.env.PUBLIC_URL;
+    return config.publicFormsUrl;
 };
 
-const Navigator = ({ history }): React.ReactElement => {
-    const basename = getBase(window.location.href);
+const Navigator = ({ config, history }): React.ReactElement => {
+    const basename = getBase(window.location.href, config);
     return (
         <>
             <BrowserRouter basename={basename}>
