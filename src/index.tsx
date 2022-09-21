@@ -21,12 +21,16 @@ window.unmountFormMFE = (containerId) => {
 };
 
 if (!document.getElementById('FormMFE-container')) {
-    ReactDOM.render(
-        <React.StrictMode>
-            <KeycloakWrapper />
-        </React.StrictMode>,
+    fetch('../forms/config.json')
+        .then((r) => r.json())
+        .then((config) => {
+            ReactDOM.render(
+                <React.StrictMode>
+                    <KeycloakWrapper config={config} />
+                </React.StrictMode>,
 
-        document.getElementById('root'),
-    );
-    serviceWorker.unregister();
+                document.getElementById('root'),
+            );
+            serviceWorker.unregister();
+        });
 }
