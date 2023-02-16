@@ -211,6 +211,8 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         tab.hasOwnProperty('properties') ? tab.properties : null,
     );
 
+    const [openDeleteModeler, setOpenDeleteModeler] = useState(false);
+
     const appData: any = useContext(AppConfig);
     const apiGatewayUrl = appData.apiGatewayUrl; //can be used as state if data not loaded properly
 
@@ -980,6 +982,40 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         setOpenFormModal(true);
     };
 
+    const renderConfirmDeleteModel = () => {
+        return (
+            <Popup
+                title={'Are you sure, You want to Delete the form?'}
+                onShow={openDeleteModeler}
+                size="xs"
+                onClose={() => setOpenDeleteModeler(false)}>
+                <div>&nbsp;</div>
+                <div>&nbsp;</div>
+
+                <div className={classes.formActionButtonWrapper}>
+                    <ActionButton
+                        variant="secondary"
+                        buttonProps={{ id: 'form_popup_cancel_button', className: classes.formButton }}
+                        onClick={(): void => setOpenDeleteModeler(false)}>
+                        Cancel
+                    </ActionButton>
+                    <ActionButton
+                        variant="primary"
+                        buttonProps={{
+                            id: `form_popup_${'save'}_button`,
+                            className: classes.formButton,
+                            type: 'submit',
+                        }}
+                        onClick={(): void => {
+                            onDeleteForm(), setOpenDeleteModeler(false);
+                        }}>
+                        Delete
+                    </ActionButton>
+                </div>
+            </Popup>
+        );
+    };
+
     const renderFormModeler = (): React.ReactElement => {
         return (
             <div className={classes.formModeler}>
@@ -1001,15 +1037,16 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                             <ActionButton
                                 variant="secondary"
                                 buttonProps={{ id: 'form_delete_button', className: classes.actionButton }}
-                                onClick={() =>
-                                    showConfirmation({
-                                        ...confirmation,
-                                        isOpen: true,
-                                        title: 'Are you sure,Do you want to delete?',
-                                        subTitle: 'Please confirm if you want to delete this particular form',
-                                        confirmButtonLabel: 'Delete',
-                                        onConfirm: () => onDeleteForm(),
-                                    })
+                                onClick={
+                                    () => setOpenDeleteModeler(true)
+                                    // showConfirmation({
+                                    //     ...confirmation,
+                                    //     isOpen: true,
+                                    //     title: 'Are you sure,Do you want to delete?',
+                                    //     subTitle: 'Please confirm if you want to delete this particular form',
+                                    //     confirmButtonLabel: 'Delete',
+                                    //     onConfirm: () => onDeleteForm(),
+                                    // })
                                 }>
                                 Delete
                             </ActionButton>
@@ -1142,6 +1179,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             {renderFormModeler()}
             {renderPopup()}
             {renderFormModal()}
+            {renderConfirmDeleteModel()}
         </div>
     );
 };
