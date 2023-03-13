@@ -195,7 +195,19 @@ const MaximizeView = () => {
     };
 
     // TODO: CHECK THIS WITH paginate: true
-    const handleSearch = async (searchTerm: string): Promise<void> => {
+    const handleSearch = async (
+        searchTerm: string,
+        noOfRows = 5,
+        pageNo = 1,
+        orderBy = sortBy,
+        orderDirection = sortDirection,
+    ): Promise<void> => {
+        const isSearchTermEmpty = searchTerm === '' || searchTerm === null || searchTerm === undefined;
+        if (isSearchTermEmpty) {
+            fetchAllForms(noOfRows, pageNo, (orderBy = sortBy), (orderDirection = sortDirection));
+            return;
+        }
+
         const { success, data } = await getAllFormsOrComponents({
             type: 'form',
             paginate: false,
