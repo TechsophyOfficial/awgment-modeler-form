@@ -205,6 +205,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         name: '',
         version: '',
         deploymentName: '',
+        elasticPush: '',
     });
     const [importedForm, setImportedForm] = useState<ImportForm | null>(null);
     const [endpointProperties, setEndpointProperties] = useState<PropertiesSchema | null>(
@@ -833,9 +834,9 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         const { success, data, message } = await saveFormOrComponent('form', saveData, apiGatewayUrl);
         setImportedForm(null);
         if (success && data) {
-            const { id: newId, version } = data;
+            const { id: newId, version, elasticPush } = data;
             setOpenFormModal(false);
-            updateTab({ ...tab, id: newId, version: version.toString(), name });
+            updateTab({ ...tab, id: newId, elasticPush, version: version.toString(), name });
             closeSpinner();
             pushNotification({
                 isOpen: true,
@@ -935,13 +936,13 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const importHandler = async (file): Promise<void> => {
         const form: ExportForm = JSON.parse(await file.text());
-        const { id, name, version = '', properties, components } = form;
+        const { id, name, version = '', elasticPush, properties, components } = form;
         if (components) {
             setFormComponent(components);
             setEndpointProperties(properties);
             updateTab({ ...tab, content: components });
-            if (id && name && version) {
-                setImportedForm({ id, name, version });
+            if (id && name && version && elasticPush) {
+                setImportedForm({ id, name, version, elasticPush });
                 updateTab({ ...tab, id, name, version });
             }
         }
@@ -978,6 +979,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             name: importedForm?.name || tab.name,
             version: importedForm?.version || tab.version || '',
             deploymentName: '',
+            elasticPush: importedForm?.elasticPush || tab.elasticPush || '---',
         });
         setOpenFormModal(true);
     };
@@ -1144,6 +1146,12 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                         renderFormDetails({
                             label: 'Version',
                             name: 'version',
+                            disabled: true,
+                        })}
+                    {tab.id &&
+                        renderFormDetails({
+                            label: 'Free Text',
+                            name: 'elasticPush',
                             disabled: true,
                         })}
                     {isDeploy &&

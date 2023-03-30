@@ -97,6 +97,7 @@ export interface SaveFormProps extends InitialForm {
 }
 export interface SaveFormResponse extends Id {
     version: string;
+    elasticPush?: string;
 }
 
 export interface ActiveForm extends InitialForm, SaveFormResponse {
@@ -114,6 +115,7 @@ export interface ExportForm {
     id?: string;
     name?: string;
     version?: string;
+    elasticPush?: string;
     components: FormioSchema;
     properties: PropertiesSchema | null;
 }
@@ -122,6 +124,7 @@ export interface ImportForm {
     id: string;
     name: string;
     version: string;
+    elasticPush?: string;
 }
 
 export interface FileEditItems {
@@ -145,6 +148,7 @@ export interface FormState {
     name: string;
     version: string;
     deploymentName: string;
+    elasticPush?: string;
 }
 
 export interface PropertiesSchema {

@@ -67,6 +67,7 @@ export interface ComponentFormResponse {
     id: string;
     name: string;
     version: string;
+    elasticPush?: string;
     components: Component;
     properties: PropertiesSchema;
 }

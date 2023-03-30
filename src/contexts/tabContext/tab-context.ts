@@ -7,6 +7,7 @@ export interface Tab {
     key: string;
     id?: string;
     version?: string;
+    elasticPush?: string;
     name: string;
     content: FormioSchema;
     properties?: any;
