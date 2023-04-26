@@ -40,8 +40,8 @@
         "wretch": "^1.7.2"
     },
     "scripts": {
-        "start": "PUBLIC_URL=/model/forms craco start",
-        "build": "PUBLIC_URL=/model/forms craco build",
+        "start": "craco start",
+        "build": "craco build",
         "build:development": "env-cmd -f .env.development craco build",
         "build:qa": "env-cmd -f .env.qa craco build",
         "build:production": "env-cmd -f .env.production craco build",
