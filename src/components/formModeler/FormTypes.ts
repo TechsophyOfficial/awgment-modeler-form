@@ -152,6 +152,7 @@ export interface FormState {
 }
 
 export interface PropertiesSchema {
+    elasticPush?: string;
     isInit: boolean;
     requestType: string;
     endpoint: string;

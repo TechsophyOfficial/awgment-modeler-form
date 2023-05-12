@@ -107,13 +107,14 @@ const MinimizeView = () => {
         openSpinner();
         const { success, message, data } = await getFormOrComponentDetails({ id: id, apiGatewayUrl: apiGatewayUrl });
         if (success && data) {
-            const { name, version, properties } = data;
+            const { name, version, properties, elasticPush } = data;
             const components: FormioSchema = data.components as FormioSchema;
             closeSpinner();
             addTab({
                 key: formName,
                 id: id,
                 name: name,
+                elasticPush: elasticPush,
                 version: version.toString(),
                 content: components,
                 properties: properties,

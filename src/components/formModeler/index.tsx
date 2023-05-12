@@ -184,8 +184,10 @@ const myOptions = {
 };
 
 const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
+    console.log(tab);
+
     const classes = useStyles();
-    const { content } = tab;
+    const { content, elasticPush } = tab;
     const {
         tabsList: { tabs },
         updateTab,
@@ -798,19 +800,23 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const onSaveForm = async (): Promise<void> => {
         const { id } = tab;
-        const { name } = formState;
+        const { name, elasticPush } = formState;
         let saveData: SaveFormProps | FormProps;
         const myProperties = getProperties();
+
         if (myProperties) {
-            const { submit, ...properties } = myProperties;
+            const { submit, elasticPush, ...properties } = myProperties;
+
             saveData = {
                 name: name,
                 components: currentFormJSON,
+                elasticPush: elasticPush,
                 properties: properties,
             };
         } else {
             saveData = {
                 name: name,
+                elasticPush: elasticPush,
                 components: currentFormJSON,
             };
         }
@@ -856,17 +862,18 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const onDeployForm = async (): Promise<void> => {
         if (tab.id && tab.version) {
-            const { id, name, version } = tab;
+            const { id, name, version, elasticPush } = tab;
             const { deploymentName } = formState;
             let postData;
             const myProperties = getProperties();
             if (myProperties) {
-                const { submit, ...properties } = myProperties;
+                const { submit, elasticPush, ...properties } = myProperties;
                 postData = {
                     id,
                     name,
                     version,
                     deploymentName,
+                    elasticPush: elasticPush,
                     components: currentFormJSON,
                     properties: properties,
                 };
@@ -876,6 +883,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                     name,
                     version,
                     deploymentName,
+                    elasticPush,
                     components: currentFormJSON,
                 };
             }
@@ -936,6 +944,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const importHandler = async (file): Promise<void> => {
         const form: ExportForm = JSON.parse(await file.text());
+
         const { id, name, version = '', elasticPush, properties, components } = form;
         if (components) {
             setFormComponent(components);
@@ -979,7 +988,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             name: importedForm?.name || tab.name,
             version: importedForm?.version || tab.version || '',
             deploymentName: '',
-            elasticPush: importedForm?.elasticPush || tab.elasticPush || '---',
+            elasticPush: importedForm?.elasticPush || tab.elasticPush || '',
         });
         setOpenFormModal(true);
     };
@@ -1061,6 +1070,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                         exportHandler={exportHandler}
                         setEndpointProperties={setEndpointProperties}
                         endpointProperties={endpointProperties}
+                        elasticPush={elasticPush}
                     />
                 </div>
                 <FormBuilder
@@ -1148,9 +1158,10 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                             name: 'version',
                             disabled: true,
                         })}
-                    {tab.id &&
+                    {!isDeploy &&
+                        tab.id &&
                         renderFormDetails({
-                            label: 'Free Text',
+                            label: 'Free Text Search',
                             name: 'elasticPush',
                             disabled: true,
                         })}
