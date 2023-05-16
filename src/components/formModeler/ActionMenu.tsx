@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useEffect } from 'react';
 import { FilePicker } from 'react-file-picker';
 import { IconButton, Menu, MenuItem, Button } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -19,6 +19,7 @@ interface ActionMenuProps {
     exportHandler: () => void;
     setEndpointProperties: (value: any) => void;
     endpointProperties: any;
+    elasticPush: string | undefined;
 }
 
 const ActionMenu: React.FC<ActionMenuProps> = ({
@@ -28,11 +29,13 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
     exportHandler,
     setEndpointProperties,
     endpointProperties,
+    elasticPush,
 }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [showProperties, setShowProperties] = useState(false);
 
     const { pushNotification } = useContext(NotificationContext);
+    const [propertyFromData, setPropertyFromData] = useState({});
 
     const useStyles = makeStyles((theme) => ({
         root: {
@@ -98,11 +101,18 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
                 message: 'Submitted Successfully',
                 type: 'success',
             });
+
             setShowProperties(false);
             setAnchorEl(null);
         },
         [setEndpointProperties],
     );
+
+    useEffect(() => {
+        const data = { elasticPush, ...endpointProperties };
+
+        setPropertyFromData(data);
+    }, [endpointProperties, elasticPush]);
 
     return (
         <>
@@ -126,7 +136,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
                 </MenuItem>
                 <Popup title={'Choose properties'} onShow={showProperties} onClose={closePopup}>
                     <Form
-                        submission={{ data: endpointProperties }}
+                        submission={{ data: propertyFromData }}
                         form={FormData.components}
                         onSubmit={(submission) => handleSubmit(submission.data)}
                     />

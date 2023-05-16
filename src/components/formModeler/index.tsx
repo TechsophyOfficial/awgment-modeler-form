@@ -185,7 +185,8 @@ const myOptions = {
 
 const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
     const classes = useStyles();
-    const { content } = tab;
+    const { content, elasticPush } = tab;
+    // const [elasticPush, setElasticPush] = useState(tab.elasticPush || null);
     const {
         tabsList: { tabs },
         updateTab,
@@ -205,6 +206,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         name: '',
         version: '',
         deploymentName: '',
+        elasticPush: '',
     });
     const [importedForm, setImportedForm] = useState<ImportForm | null>(null);
     const [endpointProperties, setEndpointProperties] = useState<PropertiesSchema | null>(
@@ -797,19 +799,23 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const onSaveForm = async (): Promise<void> => {
         const { id } = tab;
-        const { name } = formState;
+        const { name, elasticPush } = formState;
         let saveData: SaveFormProps | FormProps;
         const myProperties = getProperties();
+
         if (myProperties) {
-            const { submit, ...properties } = myProperties;
+            const { submit, elasticPush, ...properties } = myProperties;
+
             saveData = {
                 name: name,
                 components: currentFormJSON,
+                elasticPush: elasticPush,
                 properties: properties,
             };
         } else {
             saveData = {
                 name: name,
+                elasticPush: elasticPush,
                 components: currentFormJSON,
             };
         }
@@ -833,9 +839,9 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         const { success, data, message } = await saveFormOrComponent('form', saveData, apiGatewayUrl);
         setImportedForm(null);
         if (success && data) {
-            const { id: newId, version } = data;
+            const { id: newId, version, elasticPush = 'disabled' } = data;
             setOpenFormModal(false);
-            updateTab({ ...tab, id: newId, version: version.toString(), name });
+            updateTab({ ...tab, id: newId, elasticPush, version: version.toString(), name });
             closeSpinner();
             pushNotification({
                 isOpen: true,
@@ -855,17 +861,18 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const onDeployForm = async (): Promise<void> => {
         if (tab.id && tab.version) {
-            const { id, name, version } = tab;
+            const { id, name, version, elasticPush } = tab;
             const { deploymentName } = formState;
             let postData;
             const myProperties = getProperties();
             if (myProperties) {
-                const { submit, ...properties } = myProperties;
+                const { submit, elasticPush, ...properties } = myProperties;
                 postData = {
                     id,
                     name,
                     version,
                     deploymentName,
+                    elasticPush: elasticPush,
                     components: currentFormJSON,
                     properties: properties,
                 };
@@ -875,6 +882,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                     name,
                     version,
                     deploymentName,
+                    elasticPush,
                     components: currentFormJSON,
                 };
             }
@@ -935,13 +943,14 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const importHandler = async (file): Promise<void> => {
         const form: ExportForm = JSON.parse(await file.text());
-        const { id, name, version = '', properties, components } = form;
+
+        const { id, name, version = '', elasticPush, properties, components } = form;
         if (components) {
             setFormComponent(components);
             setEndpointProperties(properties);
             updateTab({ ...tab, content: components });
-            if (id && name && version) {
-                setImportedForm({ id, name, version });
+            if (id && name && version && elasticPush) {
+                setImportedForm({ id, name, version, elasticPush });
                 updateTab({ ...tab, id, name, version });
             }
         }
@@ -978,6 +987,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             name: importedForm?.name || tab.name,
             version: importedForm?.version || tab.version || '',
             deploymentName: '',
+            elasticPush: importedForm?.elasticPush || tab.elasticPush || 'disabled',
         });
         setOpenFormModal(true);
     };
@@ -1059,6 +1069,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                         exportHandler={exportHandler}
                         setEndpointProperties={setEndpointProperties}
                         endpointProperties={endpointProperties}
+                        elasticPush={elasticPush}
                     />
                 </div>
                 <FormBuilder
@@ -1108,6 +1119,11 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         required = false,
         disabled = false,
     }: FormFieldProps): React.ReactElement => {
+        const elasticValue = endpointProperties?.elasticPush
+            ? endpointProperties?.elasticPush
+            : elasticPush
+            ? elasticPush
+            : formState[name];
         return (
             <TextField
                 className={classes.formField}
@@ -1119,7 +1135,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                 required={required}
                 disabled={disabled}
                 fullWidth
-                value={formState[name]}
+                value={name !== 'elasticPush' ? formState[name] : elasticValue}
                 onChange={(event): void => onInputChange(name, event)}
             />
         );
@@ -1144,6 +1160,13 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                         renderFormDetails({
                             label: 'Version',
                             name: 'version',
+                            disabled: true,
+                        })}
+                    {!isDeploy &&
+                        tab.id &&
+                        renderFormDetails({
+                            label: 'Free Text Search',
+                            name: 'elasticPush',
                             disabled: true,
                         })}
                     {isDeploy &&
