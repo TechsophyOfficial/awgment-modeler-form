@@ -184,10 +184,9 @@ const myOptions = {
 };
 
 const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
-    console.log(tab);
-
     const classes = useStyles();
     const { content, elasticPush } = tab;
+    // const [elasticPush, setElasticPush] = useState(tab.elasticPush || null);
     const {
         tabsList: { tabs },
         updateTab,
@@ -840,7 +839,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         const { success, data, message } = await saveFormOrComponent('form', saveData, apiGatewayUrl);
         setImportedForm(null);
         if (success && data) {
-            const { id: newId, version, elasticPush } = data;
+            const { id: newId, version, elasticPush = 'disabled' } = data;
             setOpenFormModal(false);
             updateTab({ ...tab, id: newId, elasticPush, version: version.toString(), name });
             closeSpinner();
@@ -988,7 +987,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             name: importedForm?.name || tab.name,
             version: importedForm?.version || tab.version || '',
             deploymentName: '',
-            elasticPush: importedForm?.elasticPush || tab.elasticPush || '',
+            elasticPush: importedForm?.elasticPush || tab.elasticPush || 'disabled',
         });
         setOpenFormModal(true);
     };
@@ -1120,6 +1119,11 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         required = false,
         disabled = false,
     }: FormFieldProps): React.ReactElement => {
+        const elasticValue = endpointProperties?.elasticPush
+            ? endpointProperties?.elasticPush
+            : elasticPush
+            ? elasticPush
+            : formState[name];
         return (
             <TextField
                 className={classes.formField}
@@ -1131,7 +1135,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                 required={required}
                 disabled={disabled}
                 fullWidth
-                value={formState[name]}
+                value={name !== 'elasticPush' ? formState[name] : elasticValue}
                 onChange={(event): void => onInputChange(name, event)}
             />
         );

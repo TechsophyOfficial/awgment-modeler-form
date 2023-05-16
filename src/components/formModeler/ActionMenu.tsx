@@ -94,8 +94,6 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
 
     const handleSubmit = useCallback(
         (data) => {
-            console.log({ data });
-
             setEndpointProperties(data);
 
             pushNotification({
@@ -110,12 +108,11 @@ const ActionMenu: React.FC<ActionMenuProps> = ({
         [setEndpointProperties],
     );
 
-    console.log({ endpointProperties });
-
     useEffect(() => {
         const data = { elasticPush, ...endpointProperties };
+
         setPropertyFromData(data);
-    }, []);
+    }, [endpointProperties, elasticPush]);
 
     return (
         <>
