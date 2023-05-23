@@ -10,3 +10,11 @@ body,
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+.MuiList-root {
+    display: grid;
+}
+
+.formMFE-makeStyles-dialogTitle-129 .MuiTypography-h5 {
+    max-width: 380px;
+}

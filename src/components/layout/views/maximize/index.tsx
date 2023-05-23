@@ -116,7 +116,7 @@ const MaximizeView = () => {
         openSpinner();
         const { success, message, data } = await getFormOrComponentDetails({ id: id, apiGatewayUrl: apiGatewayUrl });
         if (success && data) {
-            const { name, version, properties } = data;
+            const { name, version, properties, elasticPush } = data;
             const components: FormioSchema = data.components as FormioSchema;
             closeSpinner();
             minimizeLayout();
@@ -124,6 +124,7 @@ const MaximizeView = () => {
                 key: formName,
                 id: id,
                 name: name,
+                elasticPush: elasticPush,
                 version: version.toString(),
                 content: components,
                 properties: properties,
@@ -195,7 +196,22 @@ const MaximizeView = () => {
     };
 
     // TODO: CHECK THIS WITH paginate: true
-    const handleSearch = async (searchTerm: string): Promise<void> => {
+    const handleSearch = async (
+        searchTerm: string,
+        noOfRows = 5,
+        pageNo = 1,
+        orderBy = sortBy,
+        orderDirection = sortDirection,
+    ): Promise<void> => {
+        const isSearchTermEmpty = searchTerm === '' || searchTerm === null || searchTerm === undefined;
+        if (isSearchTermEmpty) {
+            setTimeout(() => {
+                fetchAllForms(noOfRows, pageNo, (orderBy = sortBy), (orderDirection = sortDirection));
+            }, 200);
+
+            return;
+        }
+
         const { success, data } = await getAllFormsOrComponents({
             type: 'form',
             paginate: false,

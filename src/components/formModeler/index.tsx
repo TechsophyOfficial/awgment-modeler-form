@@ -185,7 +185,8 @@ const myOptions = {
 
 const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
     const classes = useStyles();
-    const { content } = tab;
+    const { content, elasticPush } = tab;
+    // const [elasticPush, setElasticPush] = useState(tab.elasticPush || null);
     const {
         tabsList: { tabs },
         updateTab,
@@ -205,11 +206,14 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         name: '',
         version: '',
         deploymentName: '',
+        elasticPush: '',
     });
     const [importedForm, setImportedForm] = useState<ImportForm | null>(null);
     const [endpointProperties, setEndpointProperties] = useState<PropertiesSchema | null>(
         tab.hasOwnProperty('properties') ? tab.properties : null,
     );
+
+    const [openDeleteModeler, setOpenDeleteModeler] = useState(false);
 
     const appData: any = useContext(AppConfig);
     const apiGatewayUrl = appData.apiGatewayUrl; //can be used as state if data not loaded properly
@@ -795,19 +799,23 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const onSaveForm = async (): Promise<void> => {
         const { id } = tab;
-        const { name } = formState;
+        const { name, elasticPush } = formState;
         let saveData: SaveFormProps | FormProps;
         const myProperties = getProperties();
+
         if (myProperties) {
-            const { submit, ...properties } = myProperties;
+            const { submit, elasticPush, ...properties } = myProperties;
+
             saveData = {
                 name: name,
                 components: currentFormJSON,
+                elasticPush: elasticPush,
                 properties: properties,
             };
         } else {
             saveData = {
                 name: name,
+                elasticPush: elasticPush,
                 components: currentFormJSON,
             };
         }
@@ -831,9 +839,9 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         const { success, data, message } = await saveFormOrComponent('form', saveData, apiGatewayUrl);
         setImportedForm(null);
         if (success && data) {
-            const { id: newId, version } = data;
+            const { id: newId, version, elasticPush = 'disabled' } = data;
             setOpenFormModal(false);
-            updateTab({ ...tab, id: newId, version: version.toString(), name });
+            updateTab({ ...tab, id: newId, elasticPush, version: version.toString(), name });
             closeSpinner();
             pushNotification({
                 isOpen: true,
@@ -853,17 +861,18 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const onDeployForm = async (): Promise<void> => {
         if (tab.id && tab.version) {
-            const { id, name, version } = tab;
+            const { id, name, version, elasticPush } = tab;
             const { deploymentName } = formState;
             let postData;
             const myProperties = getProperties();
             if (myProperties) {
-                const { submit, ...properties } = myProperties;
+                const { submit, elasticPush, ...properties } = myProperties;
                 postData = {
                     id,
                     name,
                     version,
                     deploymentName,
+                    elasticPush: elasticPush,
                     components: currentFormJSON,
                     properties: properties,
                 };
@@ -873,6 +882,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                     name,
                     version,
                     deploymentName,
+                    elasticPush,
                     components: currentFormJSON,
                 };
             }
@@ -933,13 +943,14 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
 
     const importHandler = async (file): Promise<void> => {
         const form: ExportForm = JSON.parse(await file.text());
-        const { id, name, version = '', properties, components } = form;
+
+        const { id, name, version = '', elasticPush, properties, components } = form;
         if (components) {
             setFormComponent(components);
             setEndpointProperties(properties);
             updateTab({ ...tab, content: components });
-            if (id && name && version) {
-                setImportedForm({ id, name, version });
+            if (id && name && version && elasticPush) {
+                setImportedForm({ id, name, version, elasticPush });
                 updateTab({ ...tab, id, name, version });
             }
         }
@@ -976,8 +987,43 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             name: importedForm?.name || tab.name,
             version: importedForm?.version || tab.version || '',
             deploymentName: '',
+            elasticPush: importedForm?.elasticPush || tab.elasticPush || 'disabled',
         });
         setOpenFormModal(true);
+    };
+
+    const renderConfirmDeleteModel = () => {
+        return (
+            <Popup
+                title={'Are you sure, You want to Delete the form?'}
+                onShow={openDeleteModeler}
+                size="xs"
+                onClose={() => setOpenDeleteModeler(false)}>
+                <div>&nbsp;</div>
+                <div>&nbsp;</div>
+
+                <div className={classes.formActionButtonWrapper}>
+                    <ActionButton
+                        variant="secondary"
+                        buttonProps={{ id: 'form_popup_cancel_button', className: classes.formButton }}
+                        onClick={(): void => setOpenDeleteModeler(false)}>
+                        Cancel
+                    </ActionButton>
+                    <ActionButton
+                        variant="primary"
+                        buttonProps={{
+                            id: `form_popup_${'save'}_button`,
+                            className: classes.formButton,
+                            type: 'submit',
+                        }}
+                        onClick={(): void => {
+                            onDeleteForm(), setOpenDeleteModeler(false);
+                        }}>
+                        Delete
+                    </ActionButton>
+                </div>
+            </Popup>
+        );
     };
 
     const renderFormModeler = (): React.ReactElement => {
@@ -1001,15 +1047,16 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                             <ActionButton
                                 variant="secondary"
                                 buttonProps={{ id: 'form_delete_button', className: classes.actionButton }}
-                                onClick={() =>
-                                    showConfirmation({
-                                        ...confirmation,
-                                        isOpen: true,
-                                        title: 'Are you sure,Do you want to delete?',
-                                        subTitle: 'Please confirm if you want to delete this particular form',
-                                        confirmButtonLabel: 'Delete',
-                                        onConfirm: () => onDeleteForm(),
-                                    })
+                                onClick={
+                                    () => setOpenDeleteModeler(true)
+                                    // showConfirmation({
+                                    //     ...confirmation,
+                                    //     isOpen: true,
+                                    //     title: 'Are you sure,Do you want to delete?',
+                                    //     subTitle: 'Please confirm if you want to delete this particular form',
+                                    //     confirmButtonLabel: 'Delete',
+                                    //     onConfirm: () => onDeleteForm(),
+                                    // })
                                 }>
                                 Delete
                             </ActionButton>
@@ -1022,6 +1069,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                         exportHandler={exportHandler}
                         setEndpointProperties={setEndpointProperties}
                         endpointProperties={endpointProperties}
+                        elasticPush={elasticPush}
                     />
                 </div>
                 <FormBuilder
@@ -1071,6 +1119,11 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
         required = false,
         disabled = false,
     }: FormFieldProps): React.ReactElement => {
+        const elasticValue = endpointProperties?.elasticPush
+            ? endpointProperties?.elasticPush
+            : elasticPush
+            ? elasticPush
+            : formState[name];
         return (
             <TextField
                 className={classes.formField}
@@ -1082,7 +1135,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                 required={required}
                 disabled={disabled}
                 fullWidth
-                value={formState[name]}
+                value={name !== 'elasticPush' ? formState[name] : elasticValue}
                 onChange={(event): void => onInputChange(name, event)}
             />
         );
@@ -1107,6 +1160,13 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
                         renderFormDetails({
                             label: 'Version',
                             name: 'version',
+                            disabled: true,
+                        })}
+                    {!isDeploy &&
+                        tab.id &&
+                        renderFormDetails({
+                            label: 'Free Text Search',
+                            name: 'elasticPush',
                             disabled: true,
                         })}
                     {isDeploy &&
@@ -1142,6 +1202,7 @@ const FormModeler: React.FC<FormModelerProps> = ({ tab, loadRecords }) => {
             {renderFormModeler()}
             {renderPopup()}
             {renderFormModal()}
+            {renderConfirmDeleteModel()}
         </div>
     );
 };
