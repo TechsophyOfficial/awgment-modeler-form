@@ -22,11 +22,16 @@ window.unmountFormMFE = (containerId) => {
 };
 
 if (!document.getElementById('FormMFE-container')) {
-    fetch(`https://demo1691447.mockable.io/api/awgment/v1/tenants${window.location.pathname}`)
+    fetch('../forms/config.json')
         .then((r) => r.json())
         .then((config) => {
-            ReactDOM.render(<KeycloakWrapper config={config} />, document.getElementById('root'));
-        });
+            ReactDOM.render(
+                <React.StrictMode>
+                    <KeycloakWrapper config={config} />
+                </React.StrictMode>,
 
-    serviceWorker.unregister();
+                document.getElementById('root'),
+            );
+            serviceWorker.unregister();
+        });
 }
