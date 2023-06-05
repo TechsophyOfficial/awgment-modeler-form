@@ -7,7 +7,10 @@ import KeycloakWrapper from './KeycloakWrapper';
 
 declare const window: any;
 
+console.log(window);
+
 window.renderFormMFE = (containerId: any, history, config) => {
+    console.log('i am called container MFE');
     console.log(config);
     // fetch('../model/forms/config.json')
     //     .then((r) => r.json())
@@ -22,6 +25,7 @@ window.unmountFormMFE = (containerId) => {
 };
 
 if (!document.getElementById('FormMFE-container')) {
+    console.log('i am called not a container MFE');
     fetch('../forms/config.json')
         .then((r) => r.json())
         .then((config) => {
