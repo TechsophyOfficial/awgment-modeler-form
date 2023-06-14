@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, BrowserRouter } from 'react-router-dom';
 import { FORMS, COMPONENTS } from './constants/routes';
 import Components from './components/components';
@@ -29,6 +29,8 @@ const getBase = (currentLocation: string, config: any) => {
 
 const Navigator = ({ config, history }): React.ReactElement => {
     const basename = getBase(window.location.href, config);
+    console.log(basename);
+
     return (
         <>
             <BrowserRouter basename={basename}>

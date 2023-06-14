@@ -7,13 +7,9 @@ import KeycloakWrapper from './KeycloakWrapper';
 
 declare const window: any;
 
-window.renderFormMFE = (containerId: any, history) => {
-    fetch('../model/forms/config.json')
-        .then((r) => r.json())
-        .then((config) => {
-            ReactDOM.render(<App config={config} history={history} />, document.getElementById(containerId));
-            serviceWorker.unregister();
-        });
+window.renderFormMFE = (containerId: any, history, config) => {
+    ReactDOM.render(<App config={config} history={history} />, document.getElementById(containerId));
+    serviceWorker.unregister();
 };
 
 window.unmountFormMFE = (containerId) => {
