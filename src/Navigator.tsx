@@ -28,7 +28,6 @@ const getBase = (currentLocation: string, config: any) => {
 };
 
 const Navigator = ({ config, history }): React.ReactElement => {
-    console.log(config);
     const basename = getBase(window.location.href, config);
     console.log(basename);
 
